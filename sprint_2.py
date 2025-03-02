@@ -101,3 +101,21 @@ print(portfolio)
 print("\nYearly Portfolio Weights")
 print(yearly_portfolio)
 
+# get price data
+price_data = data.pivot_table(index = 'Security Name', columns = 'Year', values = 'Ending Price')
+price_data.columns.name = None
+# print(price_data)
+
+# get weight data
+weight_data = data.pivot_table(index = 'Security Name', columns = 'Year', values = 'Portfolio')
+weight_data.columns.name = None
+# print(weight_data)
+
+# calculate portfolio return
+portfolios_return = []
+for year in range(2002, 2023):
+    stocks_return = (price_data[year + 1] - price_data[year]) / price_data[year]
+    portfolios_return.append((stocks_return * weight_data[year]).sum())
+
+for i in range(len(portfolios_return)):
+    print(f"Year {i + 2002}: {portfolios_return[i]}")
