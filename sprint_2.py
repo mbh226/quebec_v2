@@ -74,27 +74,30 @@ for factor in factor_set:
 #set chosen factor columns
 # Replace '--' with NaN
 data.replace('--', np.nan, inplace=True)
-data = data.loc[:,['Date', 'Security Name'] + factor_set]  # Select relevant columns
+data = data[['Date', 'Security Name'] + factor_set]  # Select relevant columns
 
 # Normalize the factors
 for factor in factor_set:
-    data.loc[:, factor] = (data[factor] - data[factor].mean()) / data[factor].std()
+    data[factor] = (data[factor] - data[factor].mean()) / data[factor].std()
 
 # Assign weights to the factors (equal weights)
 weights = np.ones(len(factor_set)) / len(factor_set)
 
 # Calculate the weighted sum of factors
-data.loc[:,'Portfolio'] = data[factor_set].dot(weights)
-
-# Remove rows with NaN values in the 'Portfolio' column
+data['Portfolio'] = data[factor_set].dot(weights)
 data = data.dropna(subset=['Portfolio'])
+portfolio = data[['Security Name', 'Date', 'Portfolio']]
 
 #Sorts Portfolio weights by year and gives the average portfolio weight for a given year
 data['Year'] = pd.to_datetime(data['Date']).dt.year
 data['Yearly Portfolio'] = data.groupby('Year')['Portfolio'].transform('mean')
+yearly_portfolio = data[['Year', 'Yearly Portfolio']].drop_duplicates()
 
-# Display the constructed portfolio
+# Display the constructed portfolio weights
 print("\nConstructed Portfolio")
-print(data[['Date', 'Security Name','Portfolio']])
-print(data[['Year', 'Yearly Portfolio']])  
+print(portfolio)
+
+# Display the yearly portfolio weights
+print("\nYearly Portfolio Weights")
+print(yearly_portfolio)
 
